@@ -18,6 +18,7 @@ To deploy Wolke you'll need
 
 <details>
 <summary>1. You will need all the services, we will start by cloning them all</summary>
+    <br>
     <blockquote>
 
 $ mkdir wolke-casa && cd wolke-casa
@@ -30,6 +31,7 @@ $ git clone git@github.com:wolke-casa/bot.git
 <br>
 <details>
 <summary>2. We need to configure and start the API</summary>
+    <br>
     <blockquote>
 
 $ cd api
