@@ -7,6 +7,8 @@
 
 # Deploying
 
+**Any scripts or guides provided are not guaranteed to be up to date**
+
 To deploy Wolke you'll need
 
 - Podman
