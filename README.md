@@ -46,5 +46,29 @@ Edit this as needed and to fit your needs. Each key has a brief description and 
 Once configured, we can build and run the API
 
 ```
-soonTM
+$ sudo podman build -t wolke_api:latest .
+$ sudo podman run --name wolke_api --rm --network http --pod wolke -d wolke_api:latest
 ```
+
+Congrats! Now the API should be running.
+
+<br>
+
+3. We need to configure and start the Discord bot
+
+```
+$ cd bot
+
+$ mv .env.example .env
+```
+
+Configuration of the bot is done via an environment file named `.env` just like the API
+
+Once configured, we can build and run the bot
+
+```
+$ sudo podman build -t wolke_bot:latest .
+$ sudo podman run --name wolke_bot --rm --network http --pod wolke -d wolke_bot:latest
+```
+
+Now the bot and API will be running. Note that the bot needs the API up and running so ensure the API is up so the bot can function properly!
