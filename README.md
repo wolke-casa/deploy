@@ -28,7 +28,7 @@ $ git clone git@github.com:wolke-casa/api.git
 
 $ git clone git@github.com:wolke-casa/bot.git
 ```
-<br>
+
 <br>
 
 2. We need to configure and start the API
