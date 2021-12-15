@@ -71,4 +71,6 @@ $ sudo podman build -t wolke_bot:latest .
 $ sudo podman run --name wolke_bot --rm --network http --pod wolke -d wolke_bot:latest
 ```
 
-Now the bot and API will be running. Note that the bot needs the API up and running so ensure the API is up so the bot can function properly!
+Now the bot and API will be running. 
+
+Note that the bot needs the API up and running so ensure the API is up so the bot can function properly!
