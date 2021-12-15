@@ -27,10 +27,11 @@ $ git clone git@github.com:wolke-casa/api.git
 
 $ git clone git@github.com:wolke-casa/bot.git
 ```
-
+<br>
+<br>
 2. We need to configure and start the API
 
-```sh
+```
 $ cd api
 
 $ mv .env.example .env
@@ -42,6 +43,6 @@ Edit this as needed and to fit your needs. Each key has a brief description and 
 
 Once configured, we can build and run the API
 
-```sh
+```
 soonTM
 ```
