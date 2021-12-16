@@ -121,13 +121,14 @@ if [[ $REPLY =~ ^[Nn]$ ]]
 then
         echo
         echo "Not starting database, you can start it with"
-        echo "podman run --name wolke_postgres --pod wolke --rm -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine"
+        echo "sudo podman run --name wolke_postgres --pod wolke --rm -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine"
         exit 0
 fi
 
 mkdir postgresql_data
 
-podman run --name wolke_postgres --pod wolke --network http --rm -d -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine > /dev/null
+# BUG: For some reason the api cant connect to this
+sudo podman run --name wolke_postgres --pod wolke --network http --rm -d -p 5432:5432 -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine > /dev/null
 
 echo
 echo "[${green}${bold}OK${reset}] Database (wolke_postgres) started!"
@@ -144,8 +145,8 @@ then
         exit 0
 fi
 
-sudo podman run --name wolke_api --rm --network http --pod wolke -d wolke_api:latest > /dev/null
-sudo podman run --name wolke_bot --rm --network http --pod wolke -d wolke_bot:latest > /dev/null
+sudo podman run --name wolke_api --rm --pod wolke --network http -d wolke_api:latest > /dev/null
+sudo podman run --name wolke_bot --rm --pod wolke --network http -d wolke_bot:latest  > /dev/null
 
 echo
 echo "[${green}${bold}OK${reset}] Started the API (wolke_api) and bot (wolke_bot)!"
