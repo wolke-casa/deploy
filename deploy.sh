@@ -3,7 +3,7 @@
 #       deploy
 #
 #       a script to make deploying Wolke just a bit easier
-#       requires: podman, root access and git
+#       requires: root access, podman and git
 # -------------------------------
 
 red=$(tput setaf 1)
@@ -79,6 +79,73 @@ then
 fi
 
 echo
-echo "Good!"
+echo "[${green}${bold}OK${reset}] Services configured!"
 echo
 
+echo "Now Im going to create the wolke pod, http network and build both services"
+echo
+
+sudo podman pod create --name wolke > /dev/null
+
+echo "[${green}${bold}OK${reset}] Created the wolke pod"
+
+sudo podman network create http > /dev/null
+
+echo "[${green}${bold}OK${reset}] Created the http network"
+echo
+
+cd api 
+sudo podman build -t wolke_api:latest .
+
+echo
+echo "[${green}${bold}OK${reset}] Built the API!"
+echo
+
+cd ..
+
+cd bot 
+sudo podman build -t wolke_bot:latest .
+
+echo
+echo "[${green}${bold}OK${reset}] Built the bot!"
+
+echo "[${green}${bold}OK${reset}] Both services built, http network and wolke pod created!"
+echo
+
+cd ..
+
+read -p "The services require the database be up, should I start it? (Y/n) " -n 1 -r
+
+echo  
+if [[ $REPLY =~ ^[Nn]$ ]]
+then
+        echo
+        echo "Not starting database, you can start it with"
+        echo "podman run --name wolke_postgres --pod wolke --rm -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine"
+        exit 0
+fi
+
+mkdir postgresql_data
+
+podman run --name wolke_postgres --pod wolke --network http --rm -d -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine > /dev/null
+
+echo
+echo "[${green}${bold}OK${reset}] Database (wolke_postgres) started!"
+
+read -p "Should I start the services now? (Y/n) " -n 1 -r
+
+echo  
+if [[ $REPLY =~ ^[Nn]$ ]]
+then
+        echo
+        echo "Not starting services! You can start them with"
+        echo "API: sudo podman run --name wolke_api --rm --network http --pod wolke -d wolke_api:latest"
+        echo "Bot: sudo podman run --name wolke_bot --rm --network http --pod wolke -d wolke_bot:latest"
+        exit 0
+fi
+
+sudo podman run --name wolke_api --rm --network http --pod wolke -d wolke_api:latest > /dev/null
+sudo podman run --name wolke_bot --rm --network http --pod wolke -d wolke_bot:latest > /dev/null
+
+echo
+echo "[${green}${bold}OK${reset}] Started the API (wolke_api) and bot (wolke_bot)!"
