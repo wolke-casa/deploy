@@ -85,13 +85,15 @@ echo
 echo "Now Im going to create the wolke pod, http network and build both services"
 echo
 
-sudo podman pod create --name wolke > /dev/null
-
-echo "[${green}${bold}OK${reset}] Created the wolke pod"
-
 sudo podman network create http > /dev/null
 
 echo "[${green}${bold}OK${reset}] Created the http network"
+
+sudo podman network create http > /dev/null
+
+echo "[${green}${bold}OK${reset}] Created the wolke pod"
+
+sudo podman pod create --name wolke --network http > /dev/null
 echo
 
 cd api 
@@ -121,14 +123,13 @@ if [[ $REPLY =~ ^[Nn]$ ]]
 then
         echo
         echo "Not starting database, you can start it with"
-        echo "sudo podman run --name wolke_postgres --pod wolke --rm -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine"
+        echo "'sudo podman run --name wolke_postgres --pod wolke --rm -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine'"
         exit 0
 fi
 
 mkdir postgresql_data
 
-# BUG: For some reason the api cant connect to this
-sudo podman run --name wolke_postgres --pod wolke --network http --rm -d -p 5432:5432 -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine > /dev/null
+sudo podman run --name wolke_postgres --pod wolke --rm -d -e POSTGRES_DB=wolke -e POSTGRES_PASSWORD=postgres -v $(pwd)/postgresql_data:/var/lib/postgresql/data:z docker.io/postgres:13-alpine > /dev/null
 
 echo
 echo "[${green}${bold}OK${reset}] Database (wolke_postgres) started!"
@@ -140,13 +141,20 @@ if [[ $REPLY =~ ^[Nn]$ ]]
 then
         echo
         echo "Not starting services! You can start them with"
-        echo "API: sudo podman run --name wolke_api --rm --network http --pod wolke -d wolke_api:latest"
-        echo "Bot: sudo podman run --name wolke_bot --rm --network http --pod wolke -d wolke_bot:latest"
+        echo "API: 'sudo podman run --name wolke_api --rm --network http --pod wolke -d wolke_api:latest'"
+        echo "Bot: 'sudo podman run --name wolke_bot --rm --network http --pod wolke -d wolke_bot:latest'"
         exit 0
 fi
 
-sudo podman run --name wolke_api --rm --pod wolke --network http -d wolke_api:latest > /dev/null
-sudo podman run --name wolke_bot --rm --pod wolke --network http -d wolke_bot:latest  > /dev/null
+sudo podman run --name wolke_api --rm --pod wolke -d wolke_api:latest > /dev/null
+sudo podman run --name wolke_bot --rm --pod wolke -d wolke_bot:latest  > /dev/null
 
 echo
 echo "[${green}${bold}OK${reset}] Started the API (wolke_api) and bot (wolke_bot)!"
+echo 
+
+api_ip=$(sudo podman inspect --format '{{ .NetworkSettings.Networks.http.IPAddress }}' wolke_api)
+
+echo "The API is now available at http://${api_ip}:PORT"
+echo "Stop the pod with 'sudo podman pod stop wolke'"
+echo "Remove the pod with 'sudo podman pod rm wolke'"
