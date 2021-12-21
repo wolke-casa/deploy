@@ -89,12 +89,9 @@ sudo podman network create http > /dev/null
 
 echo "[${green}${bold}OK${reset}] Created the http network"
 
-sudo podman network create http > /dev/null
+sudo podman pod create --name wolke --network http > /dev/null
 
 echo "[${green}${bold}OK${reset}] Created the wolke pod"
-
-sudo podman pod create --name wolke --network http > /dev/null
-echo
 
 cd api 
 sudo podman build -t wolke_api:latest .
